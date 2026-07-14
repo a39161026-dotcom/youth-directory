@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "우리반",
+    "slug": "wooriban",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.wooriban.app"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
+  }
+}
