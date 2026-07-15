@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: NAVY,
     paddingHorizontal: 16,
-    paddingTop: 54,
+    paddingTop: 100,
     paddingBottom: 12,
   },
   tabRow: { flexDirection: "row", paddingHorizontal: 16, gap: 8, marginBottom: 8 },

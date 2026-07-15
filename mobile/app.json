@@ -9,13 +9,19 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.wooriban.app"
     },
     "android": {
       "package": "com.wooriban.app"
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d0215c8c-8090-49a5-8b60-cacb7d0a437d"
+      }
+    }
   }
 }

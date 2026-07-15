@@ -2,7 +2,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 // 실제 배포 주소로 바꿔줘 (Render 배포 URL)
-const BASE_URL = "http://172.30.1.57:8000/api";
+const BASE_URL = "https://youth-directory.onrender.com/api";
 
 const api = axios.create({ baseURL: BASE_URL });
 
