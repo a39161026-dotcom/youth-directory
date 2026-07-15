@@ -35,8 +35,10 @@ export async function updateStudent(id, values) {
 }
 
 export async function deactivateStudent(id) {
-  const res = await api.patch(`/youth-directory/students/${id}/`, {
-    is_active: false,
+  const form = new FormData();
+  form.append("is_active", "false");
+  const res = await api.patch(`/youth-directory/students/${id}/`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
 }

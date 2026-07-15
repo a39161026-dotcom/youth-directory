@@ -9,6 +9,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Image,
+  BackHandler,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { fetchClassGroups, fetchStudents } from "../api/youthDirectory";
@@ -58,6 +59,21 @@ export default function DirectoryScreen({ teacher }) {
     loadStudents();
   }, [loadStudents]);
 
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (formTarget !== undefined) {
+        setFormTarget(undefined);
+        return true;
+      }
+      if (drawerVisible) {
+        setDrawerVisible(false);
+        return true;
+      }
+      return false;
+    });
+    return () => sub.remove();
+  }, [formTarget, drawerVisible]);
+
   if (denied) return <AccessDeniedScreen />;
 
   if (formTarget !== undefined) {
@@ -83,7 +99,7 @@ export default function DirectoryScreen({ teacher }) {
         style={styles.headerGradient}
       >
         <View style={styles.headerTopRow}>
-          <Text style={styles.brand}>우리반</Text>
+          <Text style={styles.brand}>중고등부 주소록</Text>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
             {teacher?.isAdmin ? (
               <TouchableOpacity onPress={teacher.onOpenAdmin}>
