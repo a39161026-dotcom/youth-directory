@@ -5,23 +5,28 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.wooriban.app"
+      "supportsTablet": true
     },
     "android": {
-      "package": "com.wooriban.app"
+      "package": "com.wooriban.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#6B4FA8"
+      }
     },
-    "plugins": [
-      "expo-secure-store"
-    ],
     "extra": {
       "eas": {
         "projectId": "d0215c8c-8090-49a5-8b60-cacb7d0a437d"
       }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/d0215c8c-8090-49a5-8b60-cacb7d0a437d"
     }
   }
 }

@@ -10,4 +10,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     List<Student> findByIsActiveTrueAndClassGroup_Id(Long classGroupId);
     List<Student> findByIsActiveTrueAndNameContainingIgnoreCaseAndClassGroup_Id(String name, Long classGroupId);
     List<Student> findByIsActiveTrue();
+
+    List<Student> findByIsActiveTrueAndClassGroup_GradeLabel(String gradeLabel);
+    List<Student> findByIsActiveTrueAndNameContainingIgnoreCaseAndClassGroup_GradeLabel(String name, String gradeLabel);
 }

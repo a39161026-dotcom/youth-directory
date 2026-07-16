@@ -8,6 +8,19 @@ import AdminApprovalScreen from "./screens/AdminApprovalScreen";
 import { login, logout, fetchMyTeacherStatus } from "./api/auth";
 import { loadStoredTokens } from "./api/client";
 
+// Render 무료 서버는 15분 넘게 요청이 없으면 잠드는데, 깨어나는 데
+// 몇십 초 걸릴 수 있어서 바로 실패 처리하지 않고 몇 번 재시도함
+async function fetchMyTeacherStatusWithRetry(maxAttempts = 4) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fetchMyTeacherStatus();
+    } catch (e) {
+      if (attempt === maxAttempts) throw e;
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+    }
+  }
+}
+
 // stage: 'boot' | 'login' | 'signup' | 'checking' | 'pending' | 'main' | 'admin'
 export default function App() {
   const [stage, setStage] = useState("boot");
@@ -35,7 +48,7 @@ export default function App() {
         return;
       }
       try {
-        const status = await fetchMyTeacherStatus();
+        const status = await fetchMyTeacherStatusWithRetry();
         if (status.is_teacher) {
           setTeacher({
             name: status.name,

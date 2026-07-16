@@ -53,17 +53,22 @@ public class YouthDirectoryService {
     }
 
     // ---------- 학생 ----------
-    public List<StudentResponse> listStudents(String search, Long classGroupId) {
+    public List<StudentResponse> listStudents(String search, Long classGroupId, String gradeLabel) {
         List<Student> students;
         boolean hasSearch = search != null && !search.isBlank();
         boolean hasGroup = classGroupId != null;
+        boolean hasGrade = gradeLabel != null && !gradeLabel.isBlank();
 
         if (hasSearch && hasGroup) {
             students = studentRepository.findByIsActiveTrueAndNameContainingIgnoreCaseAndClassGroup_Id(search, classGroupId);
+        } else if (hasSearch && hasGrade) {
+            students = studentRepository.findByIsActiveTrueAndNameContainingIgnoreCaseAndClassGroup_GradeLabel(search, gradeLabel);
         } else if (hasSearch) {
             students = studentRepository.findByIsActiveTrueAndNameContainingIgnoreCase(search);
         } else if (hasGroup) {
             students = studentRepository.findByIsActiveTrueAndClassGroup_Id(classGroupId);
+        } else if (hasGrade) {
+            students = studentRepository.findByIsActiveTrueAndClassGroup_GradeLabel(gradeLabel);
         } else {
             students = studentRepository.findByIsActiveTrue();
         }

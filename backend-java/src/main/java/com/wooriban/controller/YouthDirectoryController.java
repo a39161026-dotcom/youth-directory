@@ -35,9 +35,10 @@ public class YouthDirectoryController {
     @GetMapping("/students/")
     public ResponseEntity<List<StudentResponse>> students(
             @RequestParam(required = false) String search,
-            @RequestParam(value = "class_group", required = false) Long classGroup
+            @RequestParam(value = "class_group", required = false) Long classGroup,
+            @RequestParam(value = "grade_label", required = false) String gradeLabel
     ) {
-        return ResponseEntity.ok(service.listStudents(search, classGroup));
+        return ResponseEntity.ok(service.listStudents(search, classGroup, gradeLabel));
     }
 
     // multipart/form-data는 @ModelAttribute로 받으면 Jackson을 거치지 않아서

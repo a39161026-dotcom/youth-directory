@@ -62,7 +62,7 @@ export default function LoginScreen({ onLogin, onGoSignup, error }) {
       </TouchableOpacity>
 
       <Text style={styles.copyright}>
-        Copyright© 우리반 청소년부.{"\n"}All Rights Reserved.
+        Copyright© 광주봉선교회 중고등부.{"\n"}All Rights Reserved.
       </Text>
     </SafeAreaView>
   );
