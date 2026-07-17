@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import * as Updates from "expo-updates";
 import {
   View,
   Text,
@@ -6,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
 } from "react-native";
 
 export default function LoginScreen({ onLogin, onGoSignup, error }) {

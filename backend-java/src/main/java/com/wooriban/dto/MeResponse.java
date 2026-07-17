@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-// 필드명을 일부러 "is_" 접두사 없이 만들고 @JsonProperty로 JSON 키를 직접 고정함.
-// (Lombok의 boolean is-getter와 Jackson의 프로퍼티 추론이 겹치면
-//  "is_active"가 아니라 "active"로 어긋나는 경우가 있어서, 여기서는 그 문제를 피하려고
-//  명시적으로 못박아 둠 - 프론트가 기대하는 snake_case 키와 100% 일치시키기 위함)
 @Getter
 @AllArgsConstructor
 public class MeResponse {
@@ -29,4 +25,10 @@ public class MeResponse {
 
     @JsonProperty("email")
     private String email;
+
+    @JsonProperty("assigned_class_group_id")
+    private Long assignedClassGroupId;
+
+    @JsonProperty("assigned_class_group_name")
+    private String assignedClassGroupName;
 }

@@ -22,8 +22,10 @@ public class YouthDirectoryController {
     }
 
     @PostMapping("/request-access/")
-    public ResponseEntity<?> requestAccess() {
-        service.requestAccess();
+    public ResponseEntity<?> requestAccess(
+            @RequestParam(value = "class_group_id", required = false) Long classGroupId
+    ) {
+        service.requestAccess(classGroupId);
         return ResponseEntity.ok().build();
     }
 

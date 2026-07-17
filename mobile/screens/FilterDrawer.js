@@ -18,12 +18,22 @@ export default function FilterDrawer({
   photoUrl,
   onLogout,
   onToggleTheme,
+  classGroups = [],
   onSelectClassGroup,
   onSelectGradeSection,
 }) {
-  const [openSection, setOpenSection] = useState(null); // '분반' | '학년구분' | null
+  const [openSection, setOpenSection] = useState(null);
 
   const toggle = (key) => setOpenSection(openSection === key ? null : key);
+
+  const classGroupOptions = ["전체", ...classGroups.map((g) => g.name)];
+
+  const gradeOptions = [
+    "전체",
+    ...Array.from(
+      new Set(classGroups.map((g) => g.grade_label).filter(Boolean))
+    ),
+  ];
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
@@ -57,7 +67,7 @@ export default function FilterDrawer({
             label="분반"
             open={openSection === "분반"}
             onPress={() => toggle("분반")}
-            options={["전체", "중등1반", "중등2반", "고등1반", "고등2반"]}
+            options={classGroupOptions}
             onSelect={(v) => {
               onSelectClassGroup?.(v);
               setOpenSection(null);
@@ -69,7 +79,7 @@ export default function FilterDrawer({
             label="학년구분"
             open={openSection === "학년구분"}
             onPress={() => toggle("학년구분")}
-            options={["전체", "중등부", "고등부"]}
+            options={gradeOptions}
             onSelect={(v) => {
               onSelectGradeSection?.(v);
               setOpenSection(null);

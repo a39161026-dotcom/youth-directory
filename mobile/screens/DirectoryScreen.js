@@ -25,7 +25,8 @@ export default function DirectoryScreen({ teacher }) {
   const [loading, setLoading] = useState(true);
   const [denied, setDenied] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [formTarget, setFormTarget] = useState(undefined); // undefined=닫힘, null=신규, {..}=수정
+  const [formTarget, setFormTarget] = useState(undefined);
+  const [activeGradeLabel, setActiveGradeLabel] = useState(null); // undefined=닫힘, null=신규, {..}=수정
 
   const loadGroups = useCallback(async () => {
     try {
@@ -42,6 +43,7 @@ export default function DirectoryScreen({ teacher }) {
       const data = await fetchStudents({
         search,
         classGroupId: activeGroup,
+        gradeLabel: activeGradeLabel,
       });
       setStudents(data);
     } catch (e) {
@@ -49,7 +51,7 @@ export default function DirectoryScreen({ teacher }) {
     } finally {
       setLoading(false);
     }
-  }, [search, activeGroup]);
+  }, [search, activeGroup, activeGradeLabel]);
 
   useEffect(() => {
     loadGroups();
@@ -236,11 +238,20 @@ export default function DirectoryScreen({ teacher }) {
         photoUrl={teacher?.photoUrl}
         onLogout={teacher?.onLogout}
         onToggleTheme={() => {}}
+        classGroups={classGroups}
         onSelectClassGroup={(name) => {
-          const found = classGroups.find((g) => g.name === name);
-          setActiveGroup(found ? found.id : null);
+          setActiveGradeLabel(null);
+          if (name === "전체") {
+            setActiveGroup(null);
+          } else {
+            const found = classGroups.find((g) => g.name === name);
+            setActiveGroup(found ? found.id : null);
+          }
         }}
-        onSelectGradeSection={() => {}}
+        onSelectGradeSection={(label) => {
+          setActiveGroup(null);
+          setActiveGradeLabel(label === "전체" ? null : label);
+        }}
       />
     </View>
   );

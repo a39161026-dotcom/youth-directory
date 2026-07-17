@@ -37,6 +37,10 @@ public class YouthTeacher {
     @Column(name = "decided_at")
     private LocalDateTime decidedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_class_group_id")
+    private ClassGroup assignedClassGroup;
+
     public YouthTeacher(User user) {
         this.user = user;
     }

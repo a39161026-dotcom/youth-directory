@@ -7,10 +7,11 @@ export async function fetchClassGroups() {
   return res.data;
 }
 
-export async function fetchStudents({ search = "", classGroupId = null } = {}) {
+export async function fetchStudents({ search = "", classGroupId = null, gradeLabel = null } = {}) {
   const params = {};
   if (search) params.search = search;
   if (classGroupId) params.class_group = classGroupId;
+  if (gradeLabel) params.grade_label = gradeLabel;
 
   const res = await api.get("/youth-directory/students/", { params });
   return res.data;

@@ -29,21 +29,30 @@ public class YouthDirectoryService {
         YouthTeacher teacher = youthTeacherRepository.findByUser(user).orElse(null);
 
         if (teacher == null || !teacher.isActive()) {
-            return new MeResponse(false, null, null, null, null, user.getEmail());
+            return new MeResponse(false, null, null, null, null, user.getEmail(), null, null);
         }
 
         String displayName = (user.getFirstName() != null && !user.getFirstName().isBlank())
                 ? user.getFirstName() : user.getUsername();
 
-        return new MeResponse(true, user.isStaff(), displayName, "광주봉선교회", user.getPhotoUrl(), user.getEmail());
+        Long assignedId = teacher.getAssignedClassGroup() != null ? teacher.getAssignedClassGroup().getId() : null;
+        String assignedName = teacher.getAssignedClassGroup() != null ? teacher.getAssignedClassGroup().getName() : null;
+
+        return new MeResponse(true, user.isStaff(), displayName, "광주봉선교회", user.getPhotoUrl(), user.getEmail(), assignedId, assignedName);
     }
 
     // ---------- 승인 요청 생성 ----------
     @Transactional
-    public YouthTeacher requestAccess() {
+    public YouthTeacher requestAccess(Long classGroupId) {
         User user = currentUserProvider.get();
-        return youthTeacherRepository.findByUser(user)
-                .orElseGet(() -> youthTeacherRepository.save(new YouthTeacher(user)));
+        YouthTeacher teacher = youthTeacherRepository.findByUser(user)
+                .orElseGet(() -> new YouthTeacher(user));
+
+        if (classGroupId != null) {
+            classGroupRepository.findById(classGroupId).ifPresent(teacher::setAssignedClassGroup);
+        }
+
+        return youthTeacherRepository.save(teacher);
     }
 
     // ---------- 분반 ----------
