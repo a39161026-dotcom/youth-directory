@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,24 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { signup, login, requestTeacherAccess } from "../api/auth";
+import { fetchClassGroups } from "../api/youthDirectory";
 
 const TEAL = "#1E9E8C";
 
 export default function SignupScreen({ onSignedUp, onBackToLogin }) {
+  const [step, setStep] = useState("form");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const [classGroups, setClassGroups] = useState([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   const handleSignup = async () => {
     if (!username || !password) {
@@ -27,17 +34,90 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
     setSubmitting(true);
     try {
       await signup({ username, email, firstName: name, password });
-      // JWT는 자동 로그인이 안 되므로 가입 직후 바로 로그인해서 토큰 발급
       await login(username, password);
-      await requestTeacherAccess();
 
-      onSignedUp?.();
+      setLoadingGroups(true);
+      try {
+        const groups = await fetchClassGroups();
+        setClassGroups(groups);
+      } catch (e) {
+        setClassGroups([]);
+      } finally {
+        setLoadingGroups(false);
+      }
+      setStep("pickClass");
     } catch (e) {
       Alert.alert("회원가입 실패", "입력값을 확인하고 다시 시도해주세요.");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const finishSignup = async () => {
+    setSubmitting(true);
+    try {
+      await requestTeacherAccess(selectedGroupId);
+      onSignedUp?.();
+    } catch (e) {
+      Alert.alert("처리 실패", "잠시 후 다시 시도해주세요.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (step === "pickClass") {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.container}>
+          <Text style={styles.title}>담당 분반 선택</Text>
+          <Text style={styles.desc}>
+            담당하시는 분반을 선택해주세요. 로그인 후 이 분반이 먼저
+            보이게 되고, 나중에 바꿀 수도 있어요. (선택 안 해도 괜찮아요)
+          </Text>
+
+          {loadingGroups ? (
+            <ActivityIndicator color={TEAL} style={{ marginTop: 20 }} />
+          ) : (
+            <View style={styles.chipRow}>
+              {classGroups.map((g) => (
+                <TouchableOpacity
+                  key={g.id}
+                  style={[
+                    styles.chip,
+                    selectedGroupId === g.id && styles.chipActive,
+                  ]}
+                  onPress={() => setSelectedGroupId(g.id)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      selectedGroupId === g.id && styles.chipTextActive,
+                    ]}
+                  >
+                    {g.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={styles.submitBtn}
+            onPress={finishSignup}
+            disabled={submitting}
+          >
+            <Text style={styles.submitText}>
+              {submitting ? "처리 중..." : "완료"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={finishSignup} style={{ marginTop: 16 }}>
+            <Text style={styles.backText}>나중에 선택할게요 (건너뛰기)</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -50,6 +130,7 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
         <TextInput
           style={styles.input}
           placeholder="아이디"
+          placeholderTextColor="#999"
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
@@ -57,12 +138,14 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
         <TextInput
           style={styles.input}
           placeholder="이름"
+          placeholderTextColor="#999"
           value={name}
           onChangeText={setName}
         />
         <TextInput
           style={styles.input}
           placeholder="이메일"
+          placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -71,13 +154,20 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
         <TextInput
           style={styles.input}
           placeholder="비밀번호"
+          placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.submitBtn} onPress={handleSignup} disabled={submitting}>
-          <Text style={styles.submitText}>{submitting ? "가입 중..." : "가입하기"}</Text>
+        <TouchableOpacity
+          style={styles.submitBtn}
+          onPress={handleSignup}
+          disabled={submitting}
+        >
+          <Text style={styles.submitText}>
+            {submitting ? "가입 중..." : "가입하기"}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onBackToLogin} style={{ marginTop: 16 }}>
@@ -103,6 +193,16 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     backgroundColor: "#fff",
   },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 24 },
+  chip: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: "#EFEFEF",
+  },
+  chipActive: { backgroundColor: TEAL },
+  chipText: { fontSize: 14, color: "#555", fontWeight: "600" },
+  chipTextActive: { color: "#fff" },
   submitBtn: {
     backgroundColor: TEAL,
     borderRadius: 8,

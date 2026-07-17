@@ -19,7 +19,7 @@ import StudentFormScreen from "./StudentFormScreen";
 
 export default function DirectoryScreen({ teacher }) {
   const [classGroups, setClassGroups] = useState([]);
-  const [activeGroup, setActiveGroup] = useState(null); // null = 전체
+  const [activeGroup, setActiveGroup] = useState(teacher?.assignedClassGroupId ?? null); // null = 전체
   const [search, setSearch] = useState("");
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);

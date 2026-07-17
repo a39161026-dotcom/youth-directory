@@ -27,7 +27,9 @@ export async function fetchMyTeacherStatus() {
 }
 
 // 회원가입 완료 후 1회 호출: "선생님 승인해주세요" 요청 생성
-export async function requestTeacherAccess() {
-  const res = await api.post("/youth-directory/request-access/");
+export async function requestTeacherAccess(classGroupId = null) {
+  const params = {};
+  if (classGroupId) params.class_group_id = classGroupId;
+  const res = await api.post("/youth-directory/request-access/", null, { params });
   return res.data; // { status, is_active, created }
 }

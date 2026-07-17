@@ -55,6 +55,24 @@ public class YouthDirectoryService {
         return youthTeacherRepository.save(teacher);
     }
 
+    @Transactional
+    public MeResponse updateMyAssignedClassGroup(Long classGroupId) {
+        User user = currentUserProvider.get();
+        YouthTeacher teacher = youthTeacherRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("선생님 정보를 찾을 수 없습니다."));
+
+        if (classGroupId == null) {
+            teacher.setAssignedClassGroup(null);
+        } else {
+            ClassGroup group = classGroupRepository.findById(classGroupId)
+                    .orElseThrow(() -> new IllegalArgumentException("분반을 찾을 수 없습니다."));
+            teacher.setAssignedClassGroup(group);
+        }
+        youthTeacherRepository.save(teacher);
+
+        return me();
+    }
+
     // ---------- 분반 ----------
     public List<ClassGroupResponse> listClassGroups() {
         return classGroupRepository.findAllByOrderBySortOrderAscNameAsc()

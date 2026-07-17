@@ -55,6 +55,8 @@ export default function App() {
             org: status.org,
             photoUrl: status.photo_url,
             isAdmin: status.is_admin,
+            assignedClassGroupId: status.assigned_class_group_id,
+            assignedClassGroupName: status.assigned_class_group_name,
             onLogout: handleLogout,
             onOpenAdmin: () => setStage("admin"),
           });
@@ -82,6 +84,8 @@ export default function App() {
           org: status.org,
           photoUrl: status.photo_url,
           isAdmin: status.is_admin,
+          assignedClassGroupId: status.assigned_class_group_id,
+          assignedClassGroupName: status.assigned_class_group_name,
           onLogout: handleLogout,
           onOpenAdmin: () => setStage("admin"),
         });

@@ -21,6 +21,13 @@ public class YouthDirectoryController {
         return ResponseEntity.ok(service.me());
     }
 
+    @PatchMapping("/me/assigned-class-group/")
+    public ResponseEntity<MeResponse> updateAssignedClassGroup(
+            @RequestParam(value = "class_group_id", required = false) Long classGroupId
+    ) {
+        return ResponseEntity.ok(service.updateMyAssignedClassGroup(classGroupId));
+    }
+
     @PostMapping("/request-access/")
     public ResponseEntity<?> requestAccess(
             @RequestParam(value = "class_group_id", required = false) Long classGroupId
