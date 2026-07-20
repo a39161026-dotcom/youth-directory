@@ -8,6 +8,7 @@ import {
   ScrollView,
   Image,
   Alert,
+  Linking,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -18,6 +19,22 @@ import {
 
 const PURPLE = "#6B4FA8";
 const NAVY = "#1F2A44";
+
+// 숫자만 남기고 010-0000-0000 / 02-000-0000 형식으로 자동 하이픈
+function formatPhone(raw) {
+  const digits = raw.replace(/[^0-9]/g, "").slice(0, 11);
+  if (digits.length < 4) return digits;
+  if (digits.startsWith("02")) {
+    if (digits.length <= 5) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    if (digits.length <= 9)
+      return `${digits.slice(0, 2)}-${digits.slice(2, 5)}-${digits.slice(5)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  if (digits.length <= 10)
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+}
 
 // student: 수정 모드일 때 기존 값 (없으면 신규 등록)
 // classGroups: [{id, name}]
@@ -30,6 +47,7 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
   const [schoolGrade, setSchoolGrade] = useState(student?.school_grade ?? "");
   const [phone, setPhone] = useState(student?.phone ?? "");
   const [parentPhone, setParentPhone] = useState(student?.parent_phone ?? "");
+  const [region, setRegion] = useState(student?.region ?? "");
   const [memo, setMemo] = useState(student?.memo ?? "");
   const [photo, setPhoto] = useState(null); // 새로 고른 사진 (ImagePicker 결과)
   const [existingPhotoUrl] = useState(student?.photo_url ?? null);
@@ -66,6 +84,7 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
         school_grade: schoolGrade,
         phone,
         parent_phone: parentPhone,
+        region,
         memo,
         ...(photo ? { photo } : {}),
       };
@@ -149,24 +168,43 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
         <TextInput style={styles.input} value={schoolGrade} onChangeText={setSchoolGrade} />
       </Field>
 
+      <Field label="구역">
+        <TextInput
+          style={styles.input}
+          value={region}
+          onChangeText={setRegion}
+          placeholder="예: 봉선동"
+        />
+      </Field>
+
       <Field label="연락처">
         <TextInput
           style={styles.input}
           value={phone}
-          onChangeText={setPhone}
+          onChangeText={(v) => setPhone(formatPhone(v))}
           keyboardType="phone-pad"
           placeholder="010-0000-0000"
         />
       </Field>
 
       <Field label="학부모 연락처">
-        <TextInput
-          style={styles.input}
-          value={parentPhone}
-          onChangeText={setParentPhone}
-          keyboardType="phone-pad"
-          placeholder="010-0000-0000"
-        />
+        <View style={styles.phoneWithCallRow}>
+          <TextInput
+            style={[styles.input, { flex: 1 }]}
+            value={parentPhone}
+            onChangeText={(v) => setParentPhone(formatPhone(v))}
+            keyboardType="phone-pad"
+            placeholder="010-0000-0000"
+          />
+          {parentPhone ? (
+            <TouchableOpacity
+              style={styles.parentCallBtn}
+              onPress={() => Linking.openURL(`tel:${parentPhone}`)}
+            >
+              <Text style={styles.parentCallIcon}>📞</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </Field>
 
       <Field label="메모">
@@ -231,6 +269,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 15,
   },
+  phoneWithCallRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  parentCallBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+    backgroundColor: "#FDEDE6",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  parentCallIcon: { fontSize: 16 },
   segmentRow: { flexDirection: "row", gap: 8 },
   segment: {
     flex: 1,

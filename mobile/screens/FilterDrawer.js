@@ -21,6 +21,8 @@ export default function FilterDrawer({
   classGroups = [],
   onSelectClassGroup,
   onSelectGradeSection,
+  assignedClassGroupName,
+  onChangeAssignedClassGroup,
 }) {
   const [openSection, setOpenSection] = useState(null);
 
@@ -49,9 +51,6 @@ export default function FilterDrawer({
               </View>
             )}
             <View style={styles.headerActions}>
-              <TouchableOpacity onPress={onToggleTheme} style={styles.circleBtn}>
-                <Text style={styles.circleIcon}>☀️</Text>
-              </TouchableOpacity>
               <TouchableOpacity onPress={onLogout} style={styles.circleBtn}>
                 <Text style={styles.circleIcon}>⏻</Text>
               </TouchableOpacity>
@@ -82,6 +81,18 @@ export default function FilterDrawer({
             options={gradeOptions}
             onSelect={(v) => {
               onSelectGradeSection?.(v);
+              setOpenSection(null);
+              onClose?.();
+            }}
+          />
+          <FilterRow
+            icon="⭐"
+            label={`내 담당 분반${assignedClassGroupName ? " (" + assignedClassGroupName + ")" : ""}`}
+            open={openSection === "담당분반"}
+            onPress={() => toggle("담당분반")}
+            options={["설정 안 함", ...classGroups.map((g) => g.name)]}
+            onSelect={(v) => {
+              onChangeAssignedClassGroup?.(v === "설정 안 함" ? null : v);
               setOpenSection(null);
               onClose?.();
             }}

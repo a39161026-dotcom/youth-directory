@@ -1,5 +1,5 @@
+cat > ~/wooriban-full/mobile/screens/LoginScreen.js << 'EOF'
 import React, { useState } from "react";
-import * as Updates from "expo-updates";
 import {
   View,
   Text,
@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
 } from "react-native";
 
 export default function LoginScreen({ onLogin, onGoSignup, error }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -41,12 +41,20 @@ export default function LoginScreen({ onLogin, onGoSignup, error }) {
             <Text style={styles.icon}>🔒</Text>
             <Text style={styles.label}>비밀번호</Text>
           </View>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View style={styles.passwordWrap}>
+            <TextInput
+              style={styles.passwordInput}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeBtn}
+              onPress={() => setShowPassword((v) => !v)}
+            >
+              <Text style={styles.eyeIcon}>{showPassword ? "🙈" : "👁"}</Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={styles.loginBtn}
@@ -93,6 +101,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "#fff",
   },
+  passwordWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#CCC",
+    borderRadius: 6,
+    backgroundColor: "#fff",
+    marginBottom: 20,
+    paddingRight: 8,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+  },
+  eyeBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  eyeIcon: { fontSize: 18 },
   loginBtn: {
     backgroundColor: TEAL,
     borderRadius: 8,
@@ -116,3 +145,4 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
+EOF

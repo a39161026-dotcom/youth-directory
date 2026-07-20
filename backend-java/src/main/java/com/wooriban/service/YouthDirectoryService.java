@@ -9,7 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -134,8 +140,117 @@ public class YouthDirectoryService {
         if (req.getSchoolGrade() != null) student.setSchoolGrade(req.getSchoolGrade());
         if (req.getPhone() != null) student.setPhone(req.getPhone());
         if (req.getParentPhone() != null) student.setParentPhone(req.getParentPhone());
+        if (req.getRegion() != null) student.setRegion(req.getRegion());
         if (req.getMemo() != null) student.setMemo(req.getMemo());
         if (req.getIsActive() != null) student.setActive(req.getIsActive());
+    }
+
+    // ---------- CSV 학생 일괄 등록 ----------
+    // 예상 헤더 순서: 이름,반,학년,성별,학생연락처,부모연락처,구역,생년월일
+    private static final DateTimeFormatter[] DATE_FORMATS = {
+            DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+            DateTimeFormatter.ofPattern("yyyy.MM.dd"),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+    };
+
+    @Transactional
+    public StudentImportResult importStudentsFromCsv(MultipartFile file) {
+        StudentImportResult result = new StudentImportResult();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+
+            String line = reader.readLine(); // 헤더 줄은 건너뜀
+            int rowNumber = 1;
+
+            while ((line = reader.readLine()) != null) {
+                rowNumber++;
+                if (line.isBlank()) continue;
+
+                // 간단한 콤마 분리 (필드 안에 콤마가 없다는 전제)
+                String[] cols = line.split(",", -1);
+                for (int i = 0; i < cols.length; i++) {
+                    cols[i] = cols[i].trim();
+                    if (cols[i].startsWith("\"") && cols[i].endsWith("\"") && cols[i].length() >= 2) {
+                        cols[i] = cols[i].substring(1, cols[i].length() - 1);
+                    }
+                }
+
+                try {
+                    String name = col(cols, 0);
+                    if (name == null || name.isBlank()) {
+                        result.addError(rowNumber, "이름이 비어있음");
+                        continue;
+                    }
+
+                    Student student = new Student();
+                    student.setName(name);
+
+                    String className = col(cols, 1);
+                    if (className != null && !className.isBlank()) {
+                        ClassGroup group = classGroupRepository.findByNameIgnoreCase(className).orElse(null);
+                        if (group == null) {
+                            result.addError(rowNumber, "'" + className + "' 반을 찾을 수 없음");
+                            continue;
+                        }
+                        student.setClassGroup(group);
+                    }
+
+                    student.setSchoolGrade(col(cols, 2));
+
+                    String genderRaw = col(cols, 3);
+                    if (genderRaw != null && !genderRaw.isBlank()) {
+                        student.setGender(parseGender(genderRaw));
+                    }
+
+                    student.setPhone(col(cols, 4));
+                    student.setParentPhone(col(cols, 5));
+                    student.setRegion(col(cols, 6));
+
+                    String birthRaw = col(cols, 7);
+                    if (birthRaw != null && !birthRaw.isBlank()) {
+                        LocalDate parsed = parseDate(birthRaw);
+                        if (parsed == null) {
+                            result.addError(rowNumber, "생년월일 형식을 읽을 수 없음: " + birthRaw);
+                            continue;
+                        }
+                        student.setBirthdate(parsed);
+                    }
+
+                    studentRepository.save(student);
+                    result.addSuccess();
+                } catch (Exception rowEx) {
+                    result.addError(rowNumber, "처리 중 오류: " + rowEx.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("CSV 파일을 읽을 수 없습니다: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    private String col(String[] cols, int idx) {
+        if (idx >= cols.length) return null;
+        String v = cols[idx];
+        return (v == null || v.isBlank()) ? null : v;
+    }
+
+    private Student.Gender parseGender(String raw) {
+        String v = raw.trim();
+        if (v.equalsIgnoreCase("M") || v.equals("남") || v.equals("남자")) return Student.Gender.M;
+        if (v.equalsIgnoreCase("F") || v.equals("여") || v.equals("여자")) return Student.Gender.F;
+        throw new IllegalArgumentException("알 수 없는 성별 값: " + raw);
+    }
+
+    private LocalDate parseDate(String raw) {
+        for (DateTimeFormatter fmt : DATE_FORMATS) {
+            try {
+                return LocalDate.parse(raw.trim(), fmt);
+            } catch (Exception ignored) {
+            }
+        }
+        return null;
     }
 
     // ---------- 관리자: 선생님 승인 ----------

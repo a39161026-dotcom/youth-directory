@@ -4,6 +4,7 @@ import com.wooriban.dto.*;
 import com.wooriban.service.YouthDirectoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,6 +54,7 @@ public class YouthDirectoryController {
     // multipart/form-data는 @ModelAttribute로 받으면 Jackson을 거치지 않아서
     // snake_case 폼 필드명(class_group, parent_phone 등)이 Java 프로퍼티명(camelCase)과
     // 자동으로 안 맞는다. 그래서 각 필드를 명시적으로 @RequestParam(name=...)으로 받는다.
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/students/", consumes = "multipart/form-data")
     public ResponseEntity<StudentResponse> createStudent(
             @RequestParam(required = false) String name,
@@ -61,14 +63,16 @@ public class YouthDirectoryController {
             @RequestParam(value = "school_grade", required = false) String schoolGrade,
             @RequestParam(required = false) String phone,
             @RequestParam(value = "parent_phone", required = false) String parentPhone,
+            @RequestParam(required = false) String region,
             @RequestParam(required = false) String memo,
             @RequestParam(value = "is_active", required = false) Boolean isActive,
             @RequestParam(required = false) MultipartFile photo
     ) {
-        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, phone, parentPhone, memo, isActive);
+        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, phone, parentPhone, region, memo, isActive);
         return ResponseEntity.ok(service.createStudent(req, photo));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(value = "/students/{id}/", consumes = "multipart/form-data")
     public ResponseEntity<StudentResponse> updateStudent(
             @PathVariable Long id,
@@ -78,17 +82,28 @@ public class YouthDirectoryController {
             @RequestParam(value = "school_grade", required = false) String schoolGrade,
             @RequestParam(required = false) String phone,
             @RequestParam(value = "parent_phone", required = false) String parentPhone,
+            @RequestParam(required = false) String region,
             @RequestParam(required = false) String memo,
             @RequestParam(value = "is_active", required = false) Boolean isActive,
             @RequestParam(required = false) MultipartFile photo
     ) {
-        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, phone, parentPhone, memo, isActive);
+        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, phone, parentPhone, region, memo, isActive);
         return ResponseEntity.ok(service.updateStudent(id, req, photo));
+    }
+
+    // CSV 학생 일괄 등록
+    // CSV 헤더 순서: 이름,반,학년,성별,학생연락처,부모연락처,구역,생년월일
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/students/import-csv/", consumes = "multipart/form-data")
+    public ResponseEntity<StudentImportResult> importStudentsCsv(
+            @RequestParam("file") MultipartFile file
+    ) {
+        return ResponseEntity.ok(service.importStudentsFromCsv(file));
     }
 
     private StudentUpsertRequest buildRequest(
             String name, String gender, Long classGroup, String schoolGrade,
-            String phone, String parentPhone, String memo, Boolean isActive
+            String phone, String parentPhone, String region, String memo, Boolean isActive
     ) {
         StudentUpsertRequest req = new StudentUpsertRequest();
         req.setName(name);
@@ -97,6 +112,7 @@ public class YouthDirectoryController {
         req.setSchoolGrade(schoolGrade);
         req.setPhone(phone);
         req.setParentPhone(parentPhone);
+        req.setRegion(region);
         req.setMemo(memo);
         req.setIsActive(isActive);
         return req;

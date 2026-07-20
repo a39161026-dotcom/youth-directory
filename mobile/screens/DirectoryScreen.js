@@ -10,9 +10,10 @@ import {
   ActivityIndicator,
   Image,
   BackHandler,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { fetchClassGroups, fetchStudents } from "../api/youthDirectory";
+import { fetchClassGroups, fetchStudents, updateAssignedClassGroup } from "../api/youthDirectory";
 import AccessDeniedScreen from "./AccessDeniedScreen";
 import FilterDrawer from "./FilterDrawer";
 import StudentFormScreen from "./StudentFormScreen";
@@ -26,7 +27,8 @@ export default function DirectoryScreen({ teacher }) {
   const [denied, setDenied] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [formTarget, setFormTarget] = useState(undefined);
-  const [activeGradeLabel, setActiveGradeLabel] = useState(null); // undefined=닫힘, null=신규, {..}=수정
+  const [activeGradeLabel, setActiveGradeLabel] = useState(null);
+  const [assignedGroupName, setAssignedGroupName] = useState(teacher?.assignedClassGroupName ?? null); // undefined=닫힘, null=신규, {..}=수정
 
   const loadGroups = useCallback(async () => {
     try {
@@ -212,14 +214,24 @@ export default function DirectoryScreen({ teacher }) {
                   ) : null}
                 </View>
               </View>
-              {item.phone ? (
-                <TouchableOpacity
-                  style={styles.callBtn}
-                  onPress={() => Linking.openURL(`tel:${item.phone}`)}
-                >
-                  <Text style={styles.callIcon}>📞</Text>
-                </TouchableOpacity>
-              ) : null}
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                {item.phone ? (
+                  <TouchableOpacity
+                    style={styles.callBtn}
+                    onPress={() => Linking.openURL(`tel:${item.phone}`)}
+                  >
+                    <Text style={styles.callIcon}>📞</Text>
+                  </TouchableOpacity>
+                ) : null}
+                {item.parent_phone ? (
+                  <TouchableOpacity
+                    style={[styles.callBtn, styles.parentCallBtnList]}
+                    onPress={() => Linking.openURL(`tel:${item.parent_phone}`)}
+                  >
+                    <Text style={styles.callIcon}>👪</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             </TouchableOpacity>
           )}
         />
@@ -251,6 +263,17 @@ export default function DirectoryScreen({ teacher }) {
         onSelectGradeSection={(label) => {
           setActiveGroup(null);
           setActiveGradeLabel(label === "전체" ? null : label);
+        }}
+        assignedClassGroupName={assignedGroupName}
+        onChangeAssignedClassGroup={async (name) => {
+          const found = name ? classGroups.find((g) => g.name === name) : null;
+          try {
+            await updateAssignedClassGroup(found ? found.id : null);
+            setAssignedGroupName(name);
+            Alert.alert("저장 완료", name ? `담당 분반이 "${name}"으로 설정됐어요.` : "담당 분반 설정이 해제됐어요.");
+          } catch (e) {
+            Alert.alert("저장 실패", "잠시 후 다시 시도해주세요.");
+          }
         }}
       />
     </View>
@@ -349,6 +372,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   callIcon: { fontSize: 16 },
+  parentCallBtnList: { backgroundColor: "#EAEAF5" },
   empty: { textAlign: "center", color: "#9A948B", marginTop: 40 },
   fab: {
     position: "absolute",
