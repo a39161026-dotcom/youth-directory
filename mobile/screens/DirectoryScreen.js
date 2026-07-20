@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { fetchClassGroups, fetchStudents, updateAssignedClassGroup } from "../api/youthDirectory";
+import { getMediaUrl } from "../api/client";
 import AccessDeniedScreen from "./AccessDeniedScreen";
 import FilterDrawer from "./FilterDrawer";
 import StudentFormScreen from "./StudentFormScreen";
@@ -117,7 +118,7 @@ export default function DirectoryScreen({ teacher }) {
         </View>
         <View style={styles.profileRow}>
           {teacher?.photoUrl ? (
-            <Image source={{ uri: teacher.photoUrl }} style={styles.profilePhoto} />
+            <Image source={{ uri: getMediaUrl(teacher.photoUrl) }} style={styles.profilePhoto} />
           ) : (
             <View style={[styles.profilePhoto, styles.profilePhotoPlaceholder]}>
               <Text style={{ color: "#fff", fontSize: 18 }}>
@@ -191,7 +192,7 @@ export default function DirectoryScreen({ teacher }) {
             >
               <View style={styles.avatar}>
                 {item.photo_url ? (
-                  <Image source={{ uri: item.photo_url }} style={styles.avatarImg} />
+                  <Image source={{ uri: getMediaUrl(item.photo_url) }} style={styles.avatarImg} />
                 ) : (
                   <Text style={styles.avatarInitial}>{item.name?.[0] ?? "?"}</Text>
                 )}

@@ -5,9 +5,10 @@ import lombok.Setter;
 @Setter
 public class StudentUpsertRequest {
     private String name;
-    private String gender; // "M" | "F"
+    private String gender;
     private Long classGroup;
     private String schoolGrade;
+    private String school;
     private String phone;
     private String parentPhone;
     private String region;

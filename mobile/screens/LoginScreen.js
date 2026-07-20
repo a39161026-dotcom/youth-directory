@@ -1,4 +1,3 @@
-cat > ~/wooriban-full/mobile/screens/LoginScreen.js << 'EOF'
 import React, { useState } from "react";
 import {
   View,
@@ -145,4 +144,3 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
-EOF

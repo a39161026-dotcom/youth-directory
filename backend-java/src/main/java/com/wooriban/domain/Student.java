@@ -24,6 +24,7 @@ public class Student {
     private ClassGroup classGroup;
     @Column(name = "school_grade")
     private String schoolGrade;
+    private String school;
     @Column(name = "photo_url")
     private String photoUrl;
     private String phone;

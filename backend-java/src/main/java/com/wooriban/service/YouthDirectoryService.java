@@ -138,6 +138,7 @@ public class YouthDirectoryService {
             student.setClassGroup(group);
         }
         if (req.getSchoolGrade() != null) student.setSchoolGrade(req.getSchoolGrade());
+        if (req.getSchool() != null) student.setSchool(req.getSchool());
         if (req.getPhone() != null) student.setPhone(req.getPhone());
         if (req.getParentPhone() != null) student.setParentPhone(req.getParentPhone());
         if (req.getRegion() != null) student.setRegion(req.getRegion());

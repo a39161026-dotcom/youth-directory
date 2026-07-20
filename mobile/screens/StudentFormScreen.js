@@ -16,6 +16,7 @@ import {
   updateStudent,
   deactivateStudent,
 } from "../api/studentForm";
+import { getMediaUrl } from "../api/client";
 
 const PURPLE = "#6B4FA8";
 const NAVY = "#1F2A44";
@@ -120,7 +121,7 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
       <TouchableOpacity style={styles.photoPicker} onPress={pickPhoto}>
         {photo?.uri || existingPhotoUrl ? (
           <Image
-            source={{ uri: photo?.uri ?? existingPhotoUrl }}
+            source={{ uri: photo?.uri ?? getMediaUrl(existingPhotoUrl) }}
             style={styles.photoPreview}
           />
         ) : (

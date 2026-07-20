@@ -61,6 +61,7 @@ public class YouthDirectoryController {
             @RequestParam(required = false) String gender,
             @RequestParam(value = "class_group", required = false) Long classGroup,
             @RequestParam(value = "school_grade", required = false) String schoolGrade,
+            @RequestParam(required = false) String school,
             @RequestParam(required = false) String phone,
             @RequestParam(value = "parent_phone", required = false) String parentPhone,
             @RequestParam(required = false) String region,
@@ -68,7 +69,7 @@ public class YouthDirectoryController {
             @RequestParam(value = "is_active", required = false) Boolean isActive,
             @RequestParam(required = false) MultipartFile photo
     ) {
-        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, phone, parentPhone, region, memo, isActive);
+        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, school, phone, parentPhone, region, memo, isActive);
         return ResponseEntity.ok(service.createStudent(req, photo));
     }
 
@@ -80,6 +81,7 @@ public class YouthDirectoryController {
             @RequestParam(required = false) String gender,
             @RequestParam(value = "class_group", required = false) Long classGroup,
             @RequestParam(value = "school_grade", required = false) String schoolGrade,
+            @RequestParam(required = false) String school,
             @RequestParam(required = false) String phone,
             @RequestParam(value = "parent_phone", required = false) String parentPhone,
             @RequestParam(required = false) String region,
@@ -87,7 +89,7 @@ public class YouthDirectoryController {
             @RequestParam(value = "is_active", required = false) Boolean isActive,
             @RequestParam(required = false) MultipartFile photo
     ) {
-        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, phone, parentPhone, region, memo, isActive);
+        StudentUpsertRequest req = buildRequest(name, gender, classGroup, schoolGrade, school, phone, parentPhone, region, memo, isActive);
         return ResponseEntity.ok(service.updateStudent(id, req, photo));
     }
 
@@ -102,7 +104,7 @@ public class YouthDirectoryController {
     }
 
     private StudentUpsertRequest buildRequest(
-            String name, String gender, Long classGroup, String schoolGrade,
+            String name, String gender, Long classGroup, String schoolGrade, String school,
             String phone, String parentPhone, String region, String memo, Boolean isActive
     ) {
         StudentUpsertRequest req = new StudentUpsertRequest();
@@ -110,6 +112,7 @@ public class YouthDirectoryController {
         req.setGender(gender);
         req.setClassGroup(classGroup);
         req.setSchoolGrade(schoolGrade);
+        req.setSchool(school);
         req.setPhone(phone);
         req.setParentPhone(parentPhone);
         req.setRegion(region);

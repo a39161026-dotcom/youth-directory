@@ -3,6 +3,14 @@ import * as SecureStore from "expo-secure-store";
 
 // 실제 배포 주소로 바꿔줘 (Render 배포 URL)
 const BASE_URL = "https://youth-directory.onrender.com/api";
+const SERVER_ORIGIN = "https://youth-directory.onrender.com";
+
+// 서버가 상대경로("/uploads/...")로 주는 사진 주소를 절대경로로 바꿔줌
+export function getMediaUrl(path) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${SERVER_ORIGIN}${path}`;
+}
 
 const api = axios.create({ baseURL: BASE_URL });
 

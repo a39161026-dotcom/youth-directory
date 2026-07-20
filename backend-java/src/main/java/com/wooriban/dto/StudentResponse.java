@@ -16,6 +16,8 @@ public class StudentResponse {
     private final String classGroupName;
     @JsonProperty("school_grade")
     private final String schoolGrade;
+    @JsonProperty("school")
+    private final String school;
     @JsonProperty("photo_url")
     private final String photoUrl;
     @JsonProperty("phone")
@@ -35,6 +37,7 @@ public class StudentResponse {
         this.classGroup = s.getClassGroup() != null ? s.getClassGroup().getId() : null;
         this.classGroupName = s.getClassGroup() != null ? s.getClassGroup().getName() : null;
         this.schoolGrade = s.getSchoolGrade();
+        this.school = s.getSchool();
         this.photoUrl = s.getPhotoUrl();
         this.phone = s.getPhone();
         this.parentPhone = s.getParentPhone();
