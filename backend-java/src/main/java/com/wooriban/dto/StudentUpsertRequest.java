@@ -11,6 +11,7 @@ public class StudentUpsertRequest {
     private String school;
     private String phone;
     private String parentPhone;
+    private String parentName;
     private String region;
     private String memo;
     private Boolean isActive;

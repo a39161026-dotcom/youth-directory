@@ -30,6 +30,8 @@ public class Student {
     private String phone;
     @Column(name = "parent_phone")
     private String parentPhone;
+    @Column(name = "parent_name")
+    private String parentName;
     private LocalDate birthdate;
     private String region;
     @Column(columnDefinition = "TEXT")

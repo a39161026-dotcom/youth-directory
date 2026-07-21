@@ -46,6 +46,7 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
   const [gender, setGender] = useState(student?.gender ?? "M");
   const [classGroupId, setClassGroupId] = useState(student?.class_group ?? null);
   const [schoolGrade, setSchoolGrade] = useState(student?.school_grade ?? "");
+  const [school, setSchool] = useState(student?.school ?? "");
   const [phone, setPhone] = useState(student?.phone ?? "");
   const [parentPhone, setParentPhone] = useState(student?.parent_phone ?? "");
   const [region, setRegion] = useState(student?.region ?? "");
@@ -83,6 +84,7 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
         gender,
         class_group: classGroupId,
         school_grade: schoolGrade,
+        school,
         phone,
         parent_phone: parentPhone,
         region,
@@ -163,6 +165,10 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
             </TouchableOpacity>
           ))}
         </View>
+      </Field>
+
+      <Field label="학교">
+        <TextInput style={styles.input} value={school} onChangeText={setSchool} placeholder="예: 봉선중" />
       </Field>
 
       <Field label="학년 (예: 중2, 고1)">

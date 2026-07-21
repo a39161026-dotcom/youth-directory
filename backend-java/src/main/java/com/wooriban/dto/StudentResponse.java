@@ -24,6 +24,8 @@ public class StudentResponse {
     private final String phone;
     @JsonProperty("parent_phone")
     private final String parentPhone;
+    @JsonProperty("parent_name")
+    private final String parentName;
     @JsonProperty("region")
     private final String region;
     @JsonProperty("memo")
@@ -41,6 +43,7 @@ public class StudentResponse {
         this.photoUrl = s.getPhotoUrl();
         this.phone = s.getPhone();
         this.parentPhone = s.getParentPhone();
+        this.parentName = s.getParentName();
         this.region = s.getRegion();
         this.memo = s.getMemo();
         this.active = s.isActive();
