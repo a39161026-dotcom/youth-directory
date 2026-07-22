@@ -49,6 +49,7 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
   const [school, setSchool] = useState(student?.school ?? "");
   const [phone, setPhone] = useState(student?.phone ?? "");
   const [parentPhone, setParentPhone] = useState(student?.parent_phone ?? "");
+  const [parentName, setParentName] = useState(student?.parent_name ?? "");
   const [region, setRegion] = useState(student?.region ?? "");
   const [memo, setMemo] = useState(student?.memo ?? "");
   const [photo, setPhoto] = useState(null); // 새로 고른 사진 (ImagePicker 결과)
@@ -87,6 +88,7 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
         school,
         phone,
         parent_phone: parentPhone,
+        parent_name: parentName,
         region,
         memo,
         ...(photo ? { photo } : {}),
@@ -191,6 +193,15 @@ export default function StudentFormScreen({ student, classGroups = [], onSaved, 
           onChangeText={(v) => setPhone(formatPhone(v))}
           keyboardType="phone-pad"
           placeholder="010-0000-0000"
+        />
+      </Field>
+
+      <Field label="보호자 이름">
+        <TextInput
+          style={styles.input}
+          value={parentName}
+          onChangeText={setParentName}
+          placeholder="예: 홍길동"
         />
       </Field>
 

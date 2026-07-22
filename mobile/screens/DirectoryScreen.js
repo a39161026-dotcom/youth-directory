@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  ScrollView,
   TouchableOpacity,
   Linking,
   StyleSheet,
@@ -151,14 +152,14 @@ export default function DirectoryScreen({ teacher }) {
       <View style={styles.body}>
 
       {/* 분반 탭 (인덱스카드 느낌) */}
-      <FlatList
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={[{ id: null, name: "전체" }, ...classGroups]}
-        keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.tabRow}
-        renderItem={({ item }) => (
+      >
+        {[{ id: null, name: "전체" }, ...classGroups].map((item) => (
           <TouchableOpacity
+            key={String(item.id)}
             style={[styles.tab, activeGroup === item.id && styles.tabActive]}
             onPress={() => setActiveGroup(item.id)}
           >
@@ -171,8 +172,8 @@ export default function DirectoryScreen({ teacher }) {
               {item.name}
             </Text>
           </TouchableOpacity>
-        )}
-      />
+        ))}
+      </ScrollView>
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: 24 }} color="#E8734A" />
@@ -228,6 +229,11 @@ export default function DirectoryScreen({ teacher }) {
                   <TouchableOpacity
                     style={[styles.callBtn, styles.parentCallBtnList]}
                     onPress={() => Linking.openURL(`tel:${item.parent_phone}`)}
+                    onLongPress={() =>
+                      item.parent_name
+                        ? Alert.alert("보호자", `${item.parent_name}\n${item.parent_phone}`)
+                        : null
+                    }
                   >
                     <Text style={styles.callIcon}>👪</Text>
                   </TouchableOpacity>
@@ -316,7 +322,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#EEE6D8",
   },
-  tabRow: { paddingBottom: 12, gap: 8 },
+  tabRow: { paddingBottom: 12, gap: 8, flexDirection: "row", flexWrap: "nowrap" },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,
