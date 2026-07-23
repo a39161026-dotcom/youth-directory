@@ -20,6 +20,16 @@
         "backgroundColor": "#6B4FA8"
       }
     },
+    "web": {
+      "favicon": "./assets/icon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "중고등부 주소록",
+      "shortName": "주소록",
+      "themeColor": "#6B4FA8",
+      "backgroundColor": "#FBF7F0",
+      "display": "standalone"
+    },
     "extra": {
       "eas": {
         "projectId": "d0215c8c-8090-49a5-8b60-cacb7d0a437d"

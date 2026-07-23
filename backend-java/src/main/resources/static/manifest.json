@@ -1,0 +1,20 @@
+{
+  "name": "중고등부 주소록",
+  "short_name": "주소록",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF7F0",
+  "theme_color": "#6B4FA8",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

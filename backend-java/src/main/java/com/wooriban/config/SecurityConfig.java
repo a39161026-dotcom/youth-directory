@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/manifest.json", "/favicon.ico", "/icon-192.png", "/icon-512.png", "/_expo/**", "/metadata.json").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
