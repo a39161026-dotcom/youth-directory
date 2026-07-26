@@ -140,7 +140,30 @@ export default function App() {
   if (stage === "signup") {
     return (
       <SignupScreen
-        onSignedUp={() => setStage("pending")}
+        onSignedUp={async () => {
+          setStage("checking");
+          try {
+            const status = await fetchMyTeacherStatus();
+            if (status.is_teacher) {
+              setTeacher({
+                name: status.name,
+                org: status.org,
+                photoUrl: status.photo_url,
+                isAdmin: status.is_admin,
+                assignedClassGroupId: status.assigned_class_group_id,
+                assignedClassGroupName: status.assigned_class_group_name,
+                onLogout: handleLogout,
+                onOpenAdmin: () => setStage("admin"),
+              });
+              setStage("main");
+            } else {
+              setPendingEmail(status.email);
+              setStage("pending");
+            }
+          } catch (e) {
+            setStage("login");
+          }
+        }}
         onBackToLogin={() => setStage("login")}
       />
     );

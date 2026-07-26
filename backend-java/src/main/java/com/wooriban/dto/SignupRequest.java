@@ -15,4 +15,7 @@ public class SignupRequest {
     @NotBlank
     @Size(min = 4, message = "비밀번호는 4자 이상이어야 합니다.")
     private String password;
+
+    @NotBlank
+    private String inviteCode;
 }

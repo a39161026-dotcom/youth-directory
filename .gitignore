@@ -15,3 +15,5 @@ backend-java/uploads/
 .DS_Store
 *.log
 mobile/dist/
+final_photos.zip
+photos/

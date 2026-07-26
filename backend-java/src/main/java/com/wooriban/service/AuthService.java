@@ -25,6 +25,9 @@ public class AuthService {
 
     @Transactional
     public User signup(SignupRequest req) {
+        if (!"중고등부".equals(req.getInviteCode())) {
+            throw new IllegalArgumentException("가입 코드가 올바르지 않습니다.");
+        }
         if (userRepository.existsByUsername(req.getUsername())) {
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }

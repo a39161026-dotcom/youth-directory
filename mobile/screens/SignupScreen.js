@@ -20,6 +20,7 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const [classGroups, setClassGroups] = useState([]);
@@ -31,9 +32,13 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
       Alert.alert("아이디와 비밀번호를 입력해주세요.");
       return;
     }
+    if (!inviteCode) {
+      Alert.alert("가입 코드를 입력해주세요.");
+      return;
+    }
     setSubmitting(true);
     try {
-      await signup({ username, email, firstName: name, password });
+      await signup({ username, email, firstName: name, password, inviteCode });
       await login(username, password);
 
       setLoadingGroups(true);
@@ -47,7 +52,7 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
       }
       setStep("pickClass");
     } catch (e) {
-      Alert.alert("회원가입 실패", "입력값을 확인하고 다시 시도해주세요.");
+      Alert.alert("회원가입 실패", "가입 코드 또는 입력값을 확인하고 다시 시도해주세요.");
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +129,7 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
       <View style={styles.container}>
         <Text style={styles.title}>회원가입</Text>
         <Text style={styles.desc}>
-          가입 후 중고등부 관리자 승인이 필요합니다.
+          가입 코드를 입력하면 바로 가입이 완료됩니다.
         </Text>
 
         <TextInput
@@ -158,6 +163,14 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="가입 코드"
+          placeholderTextColor="#999"
+          value={inviteCode}
+          onChangeText={setInviteCode}
+          autoCapitalize="none"
         />
 
         <TouchableOpacity

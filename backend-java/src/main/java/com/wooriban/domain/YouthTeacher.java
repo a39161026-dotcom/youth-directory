@@ -26,10 +26,10 @@ public class YouthTeacher {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.PENDING;
+    private Status status = Status.APPROVED;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = false;
+    private boolean isActive = true;
 
     @Column(name = "requested_at")
     private LocalDateTime requestedAt = LocalDateTime.now();
