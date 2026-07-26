@@ -17,7 +17,6 @@ const TEAL = "#1E9E8C";
 export default function SignupScreen({ onSignedUp, onBackToLogin }) {
   const [step, setStep] = useState("form");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
@@ -38,7 +37,7 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
     }
     setSubmitting(true);
     try {
-      await signup({ username, email, firstName: name, password, inviteCode });
+      await signup({ username, firstName: name, password, inviteCode });
       await login(username, password);
 
       setLoadingGroups(true);
@@ -146,15 +145,6 @@ export default function SignupScreen({ onSignedUp, onBackToLogin }) {
           placeholderTextColor="#999"
           value={name}
           onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="이메일"
-          placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
         />
         <TextInput
           style={styles.input}

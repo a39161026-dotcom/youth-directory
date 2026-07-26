@@ -4,10 +4,9 @@ export async function login(username, password) {
   await saveTokens({ access: res.data.access, refresh: res.data.refresh });
   return res.data;
 }
-export async function signup({ username, email, firstName, password, inviteCode }) {
+export async function signup({ username, firstName, password, inviteCode }) {
   const res = await api.post("/auth/signup/", {
     username,
-    email,
     first_name: firstName,
     password,
     inviteCode: inviteCode,
