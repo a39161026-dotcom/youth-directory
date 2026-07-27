@@ -24,6 +24,8 @@ public class TeacherRequestResponse {
 
     @JsonProperty("is_active")
     private final boolean active;
+    @JsonProperty("is_staff")
+    private final boolean staff;
 
     @JsonProperty("requested_at")
     private final String requestedAt;
@@ -39,6 +41,7 @@ public class TeacherRequestResponse {
                 ? t.getUser().getFirstName() : t.getUser().getUsername();
         this.status = t.getStatus().name().toLowerCase();
         this.active = t.isActive();
+        this.staff = t.getUser().isStaff();
         this.requestedAt = t.getRequestedAt() != null ? t.getRequestedAt().toString() : null;
         this.decidedAt = t.getDecidedAt() != null ? t.getDecidedAt().toString() : null;
     }

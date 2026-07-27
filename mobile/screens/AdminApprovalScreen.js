@@ -6,80 +6,107 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
 } from "react-native";
+import * as DocumentPicker from "expo-document-picker";
 import {
   fetchTeacherRequests,
-  approveTeacher,
-  rejectTeacher,
   revokeTeacher,
+  promoteTeacher,
+  demoteTeacher,
+  importStudentsCsv,
 } from "../api/adminTeachers";
+import { confirmAction, showAlert } from "../utils/crossAlert";
 
 const NAVY = "#1F2A44";
-const TEAL = "#1E9E8C";
 
 export default function AdminApprovalScreen() {
-  const [tab, setTab] = useState("pending"); // 'pending' | 'approved'
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchTeacherRequests(tab);
+      const data = await fetchTeacherRequests("all");
       setItems(data);
     } catch (e) {
-      Alert.alert("불러오기 실패", "권한이 없거나 네트워크 오류입니다.");
+      showAlert("불러오기 실패", "권한이 없거나 네트워크 오류입니다.");
     } finally {
       setLoading(false);
     }
-  }, [tab]);
+  }, []);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const handleApprove = async (id) => {
-    await approveTeacher(id);
-    load();
+  const handleRevoke = (id, name) => {
+    confirmAction(
+      "권한을 회수할까요?",
+      `${name} 선생님의 주소록 접근 권한을 회수합니다.`,
+      async () => { await revokeTeacher(id); load(); }
+    );
   };
 
-  const handleReject = async (id) => {
-    Alert.alert("거절하시겠어요?", "이 신청을 거절합니다.", [
-      { text: "취소", style: "cancel" },
-      { text: "거절", style: "destructive", onPress: async () => { await rejectTeacher(id); load(); } },
-    ]);
+  const handlePromote = (id, name) => {
+    confirmAction(
+      "관리자로 지정할까요?",
+      `${name} 선생님에게 관리자 권한을 부여합니다.`,
+      async () => { await promoteTeacher(id); load(); }
+    );
   };
 
-  const handleRevoke = async (id) => {
-    Alert.alert("권한을 회수할까요?", "이 선생님의 주소록 접근 권한을 회수합니다.", [
-      { text: "취소", style: "cancel" },
-      { text: "회수", style: "destructive", onPress: async () => { await revokeTeacher(id); load(); } },
-    ]);
+  const handleDemote = (id, name) => {
+    confirmAction(
+      "관리자 권한을 해제할까요?",
+      `${name} 선생님의 관리자 권한을 해제합니다.`,
+      async () => { await demoteTeacher(id); load(); }
+    );
+  };
+
+  const handleCsvUpload = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["text/csv", "text/comma-separated-values", "application/vnd.ms-excel", "*/*"],
+        copyToCacheDirectory: true,
+      });
+      if (result.canceled || !result.assets || result.assets.length === 0) return;
+
+      const asset = result.assets[0];
+      setUploading(true);
+
+      const fileToUpload = asset.file
+        ? asset.file
+        : { uri: asset.uri, name: asset.name || "students.csv", type: "text/csv" };
+
+      const res = await importStudentsCsv(fileToUpload);
+      const fail = (res.totalRows ?? 0) - (res.successCount ?? 0);
+      const errorPreview = (res.errors ?? []).slice(0, 5).join("\n");
+      showAlert(
+        "업로드 완료",
+        `성공: ${res.successCount ?? 0}건\n실패: ${fail}건` +
+          (errorPreview ? `\n\n[오류]\n${errorPreview}` : "")
+      );
+    } catch (e) {
+      showAlert("업로드 실패", "CSV 형식을 확인하고 다시 시도해주세요.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>선생님 승인 관리</Text>
+      <Text style={styles.header}>선생님 관리</Text>
 
-      <View style={styles.tabRow}>
-        <TouchableOpacity
-          style={[styles.tabBtn, tab === "pending" && styles.tabBtnActive]}
-          onPress={() => setTab("pending")}
-        >
-          <Text style={[styles.tabText, tab === "pending" && styles.tabTextActive]}>
-            승인 대기
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tabBtn, tab === "approved" && styles.tabBtnActive]}
-          onPress={() => setTab("approved")}
-        >
-          <Text style={[styles.tabText, tab === "approved" && styles.tabTextActive]}>
-            승인됨
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={styles.csvBtn}
+        onPress={handleCsvUpload}
+        disabled={uploading}
+      >
+        <Text style={styles.csvBtnText}>
+          {uploading ? "업로드 중..." : "📄 CSV로 학생 일괄 등록"}
+        </Text>
+      </TouchableOpacity>
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: 24 }} color={NAVY} />
@@ -89,43 +116,40 @@ export default function AdminApprovalScreen() {
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ padding: 16 }}
           ListEmptyComponent={
-            <Text style={styles.empty}>
-              {tab === "pending" ? "대기 중인 신청이 없어요." : "승인된 선생님이 없어요."}
-            </Text>
+            <Text style={styles.empty}>등록된 선생님이 없어요.</Text>
           }
           renderItem={({ item }) => (
             <View style={styles.card}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.email}>{item.email || item.username}</Text>
-                <Text style={styles.date}>
-                  신청일: {new Date(item.requested_at).toLocaleDateString()}
+                <Text style={styles.name}>
+                  {item.name}{item.is_staff ? " 👑 관리자" : ""}
                 </Text>
+                <Text style={styles.email}>{item.email || item.username}</Text>
               </View>
 
-              {tab === "pending" ? (
-                <View style={styles.btnRow}>
+              <View style={styles.btnRow}>
+                {item.is_staff ? (
                   <TouchableOpacity
-                    style={[styles.actionBtn, styles.approveBtn]}
-                    onPress={() => handleApprove(item.id)}
+                    style={[styles.actionBtn, styles.demoteBtn]}
+                    onPress={() => handleDemote(item.id, item.name)}
                   >
-                    <Text style={styles.actionText}>승인</Text>
+                    <Text style={styles.actionText}>관리자 해제</Text>
                   </TouchableOpacity>
+                ) : (
                   <TouchableOpacity
-                    style={[styles.actionBtn, styles.rejectBtn]}
-                    onPress={() => handleReject(item.id)}
+                    style={[styles.actionBtn, styles.promoteBtn]}
+                    onPress={() => handlePromote(item.id, item.name)}
                   >
-                    <Text style={styles.actionText}>거절</Text>
+                    <Text style={styles.actionText}>관리자 지정</Text>
                   </TouchableOpacity>
-                </View>
-              ) : (
+                )}
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.revokeBtn]}
-                  onPress={() => handleRevoke(item.id)}
+                  onPress={() => handleRevoke(item.id, item.name)}
                 >
                   <Text style={styles.actionText}>권한 회수</Text>
                 </TouchableOpacity>
-              )}
+              </View>
             </View>
           )}
         />
@@ -144,16 +168,15 @@ const styles = StyleSheet.create({
     paddingTop: 100,
     paddingBottom: 12,
   },
-  tabRow: { flexDirection: "row", paddingHorizontal: 16, gap: 8, marginBottom: 8 },
-  tabBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: "#F0EBE1",
+  csvBtn: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    backgroundColor: NAVY,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
   },
-  tabBtnActive: { backgroundColor: NAVY },
-  tabText: { fontSize: 13, fontWeight: "600", color: "#6B6B6B" },
-  tabTextActive: { color: "#fff" },
+  csvBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
   card: {
     backgroundColor: "#fff",
     borderRadius: 14,
@@ -166,12 +189,11 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 15, fontWeight: "700", color: "#2B2B2B" },
   email: { fontSize: 12, color: "#6B6B6B", marginTop: 2 },
-  date: { fontSize: 11, color: "#9A948B", marginTop: 4 },
-  btnRow: { flexDirection: "row", gap: 6 },
+  btnRow: { flexDirection: "row", gap: 6, flexWrap: "wrap" },
   actionBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
-  approveBtn: { backgroundColor: TEAL },
-  rejectBtn: { backgroundColor: "#B0453A" },
   revokeBtn: { backgroundColor: "#B0453A" },
+  promoteBtn: { backgroundColor: "#8B6F1E" },
+  demoteBtn: { backgroundColor: "#9A948B" },
   actionText: { color: "#fff", fontSize: 12, fontWeight: "700" },
   empty: { textAlign: "center", color: "#9A948B", marginTop: 40 },
 });

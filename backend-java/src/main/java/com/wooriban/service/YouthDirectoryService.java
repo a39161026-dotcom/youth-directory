@@ -28,6 +28,7 @@ public class YouthDirectoryService {
     private final YouthTeacherRepository youthTeacherRepository;
     private final CurrentUserProvider currentUserProvider;
     private final FileStorageService fileStorageService;
+    private final UserRepository userRepository;
 
     // ---------- 내 상태 확인 ----------
     public MeResponse me() {
@@ -292,6 +293,24 @@ public class YouthDirectoryService {
         t.setStatus(YouthTeacher.Status.REJECTED);
         t.setDecidedAt(LocalDateTime.now());
         return new TeacherRequestResponse(youthTeacherRepository.save(t));
+    }
+
+    @Transactional
+    public TeacherRequestResponse promoteToAdmin(Long id) {
+        YouthTeacher t = getTeacherOrThrow(id);
+        User user = t.getUser();
+        user.setStaff(true);
+        userRepository.save(user);
+        return new TeacherRequestResponse(t);
+    }
+
+    @Transactional
+    public TeacherRequestResponse demoteFromAdmin(Long id) {
+        YouthTeacher t = getTeacherOrThrow(id);
+        User user = t.getUser();
+        user.setStaff(false);
+        userRepository.save(user);
+        return new TeacherRequestResponse(t);
     }
 
     private YouthTeacher getTeacherOrThrow(Long id) {

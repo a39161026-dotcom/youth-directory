@@ -39,4 +39,12 @@ public class AdminController {
     public ResponseEntity<TeacherRequestResponse> revoke(@PathVariable Long id) {
         return ResponseEntity.ok(service.revokeTeacher(id));
     }
+    @PostMapping("/teacher-requests/{id}/promote/")
+    public ResponseEntity<TeacherRequestResponse> promote(@PathVariable Long id) {
+        return ResponseEntity.ok(service.promoteToAdmin(id));
+    }
+    @PostMapping("/teacher-requests/{id}/demote/")
+    public ResponseEntity<TeacherRequestResponse> demote(@PathVariable Long id) {
+        return ResponseEntity.ok(service.demoteFromAdmin(id));
+    }
 }
