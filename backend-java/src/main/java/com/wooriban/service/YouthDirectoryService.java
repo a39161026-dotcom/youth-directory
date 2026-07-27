@@ -313,6 +313,14 @@ public class YouthDirectoryService {
         return new TeacherRequestResponse(t);
     }
 
+    @Transactional
+    public void deleteTeacher(Long id) {
+        YouthTeacher t = getTeacherOrThrow(id);
+        User user = t.getUser();
+        youthTeacherRepository.delete(t);
+        userRepository.delete(user);
+    }
+
     private YouthTeacher getTeacherOrThrow(Long id) {
         return youthTeacherRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("요청을 찾을 수 없습니다."));

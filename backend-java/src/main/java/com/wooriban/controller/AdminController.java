@@ -47,4 +47,9 @@ public class AdminController {
     public ResponseEntity<TeacherRequestResponse> demote(@PathVariable Long id) {
         return ResponseEntity.ok(service.demoteFromAdmin(id));
     }
+    @DeleteMapping("/teacher-requests/{id}/")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.deleteTeacher(id);
+        return ResponseEntity.noContent().build();
+    }
 }
