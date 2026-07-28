@@ -1,6 +1,7 @@
 package com.wooriban.controller;
 
 import com.wooriban.dto.TeacherRequestResponse;
+import com.wooriban.service.GradePromotionService;
 import com.wooriban.service.YouthDirectoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 public class AdminController {
 
     private final YouthDirectoryService service;
+    private final GradePromotionService gradePromotionService;
 
     @GetMapping("/teacher-requests/")
     public ResponseEntity<List<TeacherRequestResponse>> list(
@@ -51,5 +53,10 @@ public class AdminController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.deleteTeacher(id);
         return ResponseEntity.noContent().build();
+    }
+    // 관리자가 테스트/수동 실행할 수 있는 학년 승급 API (정식 실행은 매년 1월 1일 자동)
+    @PostMapping("/run-grade-promotion")
+    public ResponseEntity<GradePromotionService.GradePromotionResult> runGradePromotion() {
+        return ResponseEntity.ok(gradePromotionService.run());
     }
 }
