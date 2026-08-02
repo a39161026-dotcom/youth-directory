@@ -2,7 +2,7 @@
   "expo": {
     "name": "중고등부 주소록",
     "slug": "wooriban",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "com.wooriban.app",
+      "versionCode": 3,
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -37,7 +38,7 @@
     },
     "runtimeVersion": "1.0.0",
     "updates": {
-      "url": "https://u.expo.dev/d0215c8c-8090-49a5-8b60-cacb7d0a437d"
+      "enabled": false
     }
   }
 }

@@ -6,15 +6,15 @@ import { Platform } from "react-native";
 const storage = {
   async getItemAsync(key) {
     if (Platform.OS === "web") return localStorage.getItem(key);
-    return storage.getItemAsync(key);
+    return SecureStore.getItemAsync(key);
   },
   async setItemAsync(key, value) {
     if (Platform.OS === "web") return localStorage.setItem(key, value);
-    return storage.setItemAsync(key, value);
+    return SecureStore.setItemAsync(key, value);
   },
   async deleteItemAsync(key) {
     if (Platform.OS === "web") return localStorage.removeItem(key);
-    return storage.deleteItemAsync(key);
+    return SecureStore.deleteItemAsync(key);
   },
 };
 
